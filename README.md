@@ -1,1 +1,1 @@
-# IPK-VUT-FIT
+# IPK-VUT-FIT-1Project
