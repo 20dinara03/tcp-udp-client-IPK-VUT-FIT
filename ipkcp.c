@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #define BUFSIZE 1024
+bool is_upd = false;
 int main (int argc, const char * argv[]) {
 	int client_socket, port_number, bytestx, bytesrx;
     socklen_t serverlen;
@@ -16,14 +17,17 @@ int main (int argc, const char * argv[]) {
     struct hostent *server;
     struct sockaddr_in server_address;
     char buf[BUFSIZE];
+    bzero(buf, BUFSIZE); // clear buffer
+    signal(SIGINT, handle_sigint); // handle SIGINT Ctrl+C
      
     /* 1. test vstupnich parametru: */
-    if (argc != 3) {
+    if (argc != 7) {
        fprintf(stderr,"usage: %s <hostname> <port>\n", argv[0]);
        exit(EXIT_FAILURE);
     }
-    server_hostname = argv[1];
-    port_number = atoi(argv[2]);
+    server_hostname = argv[2];
+    port_number = atoi(argv[4]);
+    if(argv[6]=="upd"){is_upd = true;}
     
     /* 2. ziskani adresy serveru pomoci DNS */
     
