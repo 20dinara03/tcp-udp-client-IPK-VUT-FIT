@@ -58,7 +58,7 @@ void upd(char* buf, int client_socket,int bytestx, int bytesrx, socklen_t server
     fgets(buf_exp, BUFSIZE, stdin);
 
     buf[0]=0x00;
-    memcpy(&buf[1], strlen(buf_exp), sizeof(strlen(buf_exp)));
+    memcpy(&buf[1], buf_exp, sizeof(strlen(buf_exp))); // второй агрумент был strlen(buf_exp)
     memcpy(buf + 2, buf_exp, strlen(buf_exp) + 1);
 
 
@@ -90,6 +90,10 @@ void upd(char* buf, int client_socket,int bytestx, int bytesrx, socklen_t server
   }
 }
 
+void handle_sigint() {
+  //handle ctrl+c
+}
+
 int main (int argc, const char * argv[]) {
 	int client_socket, port_number, bytestx, bytesrx;
   socklen_t serverlen;
@@ -98,7 +102,8 @@ int main (int argc, const char * argv[]) {
   struct sockaddr_in server_address;
   char buf[BUFSIZE];
   bzero(buf, BUFSIZE); // clear buffer
-  signal(SIGINT, handle_sigint); // handle SIGINT Ctrl+C
+
+  signal(SIGINT, handle_sigint); // handle SIGINT Ctrl+C 
      
   /* 1. test vstupnich parametru: */
   if (argc != 7) 
@@ -120,11 +125,11 @@ int main (int argc, const char * argv[]) {
   }
   if(strcmp(argv[5],"-m")==0)
   {
-    if(strcmp(argv[6],"upd") == 0){is_upd = true;}
+    if(strcmp(argv[6],"udp") == 0){is_upd = true;}
     else if (strcmp(argv[6],"tcp") == 0){is_upd = false;}
     else 
     {
-      fprintf(stderr,"Unknown mode: %s tcp or upd\n", argv[0]);
+      fprintf(stderr,"Unknown mode: %s tcp or udp\n", argv[0]);
       exit(EXIT_FAILURE);
     }
   }
@@ -136,7 +141,7 @@ int main (int argc, const char * argv[]) {
   
   if(port_number < 0 || port_number > 65536)
   {
-    fprintf(stderr,"ERROR: Port must be in interval 0-65536,not %s\n", port_number);
+    fprintf(stderr,"ERROR: Port must be in interval 0-65536,not %d\n", port_number); //тут поменял на %d
     exit(EXIT_FAILURE);
   }
 
