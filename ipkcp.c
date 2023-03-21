@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #ifdef _WIN32
-int main(int argc, char* [] argv) {
+int main(int argc, char*  argv[]) {
     fprintf(stderr, "Windows is not supported platform");
     exit(0);
 }
@@ -28,7 +28,6 @@ void tcp(char* buf ,int bytestx, int bytesrx)
     {
         /* nacteni zpravy od uzivatele */
         bzero(buf, BUFSIZE);
-        printf("Please enter msg: ");
         fgets(buf, BUFSIZE, stdin);
         /* odeslani zpravy na server */
         bytestx = (int) send(client_socket, buf, strlen(buf), 0);
@@ -40,7 +39,7 @@ void tcp(char* buf ,int bytestx, int bytesrx)
         if (bytesrx < 0)
             perror("ERROR in recvfrom");
 
-        printf("Echo from server: %s", buf);
+        printf("%s", buf);
     }
 }
 
@@ -52,7 +51,6 @@ void upd(char* buf, int bytestx, int bytesrx, socklen_t serverlen, struct sockad
 
         /* nacteni zpravy od uzivatele */
         bzero(buf, BUFSIZE);
-        printf("Please enter msg: ");
         fgets(buf_exp, BUFSIZE, stdin);
 
         buf[0] = 0x0;
@@ -74,7 +72,7 @@ void upd(char* buf, int bytestx, int bytesrx, socklen_t serverlen, struct sockad
         if(buf[1] == 0x0)
         {
             buf = buf + 3;
-            printf("Echo from server: %s\n", buf);
+            printf("OK: %s\n", buf);
         }
         else if (buf[1] == 0x1)
         {
@@ -87,7 +85,7 @@ void upd(char* buf, int bytestx, int bytesrx, socklen_t serverlen, struct sockad
     }
 }
 
-void ctrl_c(int sig) {
+void ctrl_c() {
     char buffer[BUFSIZE];
     bzero(buffer, BUFSIZE);
 
@@ -95,6 +93,11 @@ void ctrl_c(int sig) {
         if (!is_upd) {
             strcpy(buffer, "BYE\n");
             send(client_socket, buffer, 4, 0);
+            printf("\n");
+            printf("%s", buffer);
+            recv(client_socket, buffer, BUFSIZE, 0); 
+            printf("%s", buffer);
+            
         }
         close(client_socket); // close socket
     }
@@ -102,8 +105,8 @@ void ctrl_c(int sig) {
 }
 
 int main (int argc, const char * argv[]) {
-    int port_number, bytestx, bytesrx;
-    socklen_t serverlen;
+    int port_number, bytestx = -1, bytesrx = -1;
+    socklen_t serverlen = -1;
     const char *server_hostname;
     struct hostent *server;
     struct sockaddr_in server_address;

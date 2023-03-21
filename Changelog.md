@@ -20,7 +20,7 @@ And in the end I worked on Readme for a long time, since I wrote something like 
 * Bugs related to UDP and UPD protocols
 * Structure of UML diagram
 # 1.0.1 - 2023-03-20 
->Created a Makefile with "missing separator" error
+>Created a Makefile with "missing separator" error because I used whitespace, but not a tab
 ### Added
 Makefile
 ### Fixed
