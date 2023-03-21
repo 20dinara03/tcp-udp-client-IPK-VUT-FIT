@@ -1,11 +1,11 @@
 # README
 # IPK project 1
-author: **Dinara Garipova** (xbarza00)  
+author: **Dinara Garipova** (xgarip00)  
 date: **2023-03-21**
 Gitea profile: [xgarip00](https://git.fit.vutbr.cz/xgarip00)
 
 # Task:
-##Client-aplication
+## Client-aplication
 This code implements a client application that sends messages to a server using either TCP or UDP protocols. The client accepts the following command-line arguments:
 
 -h: the hostname of the server to connect to.
