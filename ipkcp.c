@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #ifdef _WIN32
+// If compiling on Windows, this code won't run, so exit program.
 int main(int argc, char*  argv[]) {
     fprintf(stderr, "Windows is not supported platform");
     exit(0);
@@ -16,57 +17,65 @@ int main(int argc, char*  argv[]) {
 #include <signal.h>
 #include <stdbool.h>
 
-#define BUFSIZE 1024
+#define BUFSIZE 1024 // Define buffer size for messages.
 
-bool is_upd = false;
-int client_socket;
+bool is_upd = false; // Boolean variable to keep track of UDP vs TCP mode.
+int client_socket;  // Socket file descriptor for client.
 
+/**
+ * 
+*/
 void tcp(char* buf ,int bytestx, int bytesrx)
 {
-    bzero(buf, BUFSIZE);
+    // Function to handle TCP mode.
+    bzero(buf, BUFSIZE); // Clear buffer.
+    // While the user hasn't entered the "BYE" message, keep reading and sending messages.
     while (strcmp(buf, "BYE\n") != 0)
     {
-        /* nacteni zpravy od uzivatele */
+        // Read message from user.
         bzero(buf, BUFSIZE);
         fgets(buf, BUFSIZE, stdin);
-        /* odeslani zpravy na server */
+        // Send message to server.
         bytestx = (int) send(client_socket, buf, strlen(buf), 0);
         if (bytestx < 0)
             perror("ERROR in sendto");
-        /* prijeti odpovedi a jeji vypsani */
+        // Receive response message from server.
         bzero(buf, BUFSIZE);
         bytesrx = (int) recv(client_socket, buf, BUFSIZE, 0);
         if (bytesrx < 0)
             perror("ERROR in recvfrom");
-
+        // Print server response message.
         printf("%s", buf);
     }
 }
 
 void upd(char* buf, int bytestx, int bytesrx, socklen_t serverlen, struct sockaddr_in server_address)
 {
+    // Function to handle UDP mode.
     while(1)
     {
         char buf_exp[BUFSIZE];
 
-        /* nacteni zpravy od uzivatele */
+        // Read message from user.
         bzero(buf, BUFSIZE);
         fgets(buf_exp, BUFSIZE, stdin);
 
+        // Construct message to be sent to server (consists of a header byte and the actual message).
         buf[0] = 0x0;
         buf[1] = strlen(buf_exp);
         memcpy(buf + 2, buf_exp, strlen(buf_exp) + 1);
 
-        /* odeslani zpravy na server */
+        // Send message to server.
         serverlen = sizeof(server_address);
         bytestx = (int) sendto(client_socket, buf, strlen(buf_exp) + 2, 0, (struct sockaddr *) &server_address, serverlen);
         if (bytestx < 0)
             perror("ERROR: sendto");
 
         bzero(buf, BUFSIZE);
-        /* prijeti odpovedi a jeji vypsani */
+        // Receive response message from server.
         bytesrx = (int) recvfrom(client_socket, buf, BUFSIZE, 0, (struct sockaddr *) &server_address, &serverlen);
-
+        
+        // Parse response message and print appropriately.
         if (bytesrx < 0) {perror("ERROR: recvfrom");}
 
         if(buf[1] == 0x0)
@@ -87,16 +96,16 @@ void upd(char* buf, int bytestx, int bytesrx, socklen_t serverlen, struct sockad
 
 void ctrl_c() {
     char buffer[BUFSIZE];
-    bzero(buffer, BUFSIZE);
+    bzero(buffer, BUFSIZE); // Clear buffer
 
     if (client_socket > 0) {
-        if (!is_upd) {
-            strcpy(buffer, "BYE\n");
-            send(client_socket, buffer, 4, 0);
+        if (!is_upd) { // If TCP
+            strcpy(buffer, "BYE\n"); // Set message to "BYE\n"
+            send(client_socket, buffer, 4, 0); // Send "BYE\n" to server
             printf("\n");
-            printf("%s", buffer);
-            recv(client_socket, buffer, BUFSIZE, 0); 
-            printf("%s", buffer);
+            printf("%s", buffer); // Print "BYE\n" to console
+            recv(client_socket, buffer, BUFSIZE, 0);  // Receive message from server
+            printf("%s", buffer); // Print message from server to console
             
         }
         close(client_socket); // close socket
@@ -115,19 +124,19 @@ int main (int argc, const char * argv[]) {
 
     signal(SIGINT, &ctrl_c); // handle SIGINT Ctrl+C
 
-    /* 1. test vstupnich parametru: */
+    /* 1. Test input parameters: */
     if (argc != 7)
     {
         fprintf(stderr,"usage: %s -h <hostname> -p <port> -m <mode>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
-    if(strcmp(argv[1],"-h")==0) {server_hostname = argv[2];}
+    if(strcmp(argv[1],"-h")==0) {server_hostname = argv[2];} // Set server hostname
     else
     {
         fprintf(stderr,"usage: %s -h <hostname> -p <port> -m <mode>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
-    if(strcmp(argv[3],"-p")==0){port_number = atoi(argv[4]);}
+    if(strcmp(argv[3],"-p")==0){port_number = atoi(argv[4]);} // Set server port number
     else
     {
         fprintf(stderr,"usage: %s -h <hostname> -p <port> -m <mode>\n", argv[0]);
@@ -135,8 +144,8 @@ int main (int argc, const char * argv[]) {
     }
     if(strcmp(argv[5],"-m")==0)
     {
-        if(strcmp(argv[6],"udp") == 0) {is_upd = true;}
-        else if (strcmp(argv[6],"tcp") == 0) {is_upd = false;}
+        if(strcmp(argv[6],"udp") == 0) {is_upd = true;} // If mode is UDP, set flag to true
+        else if (strcmp(argv[6],"tcp") == 0) {is_upd = false;} // If mode is TCP, set flag to false
         else
         {
           fprintf(stderr,"Unknown mode: %s tcp or udp\n", argv[0]);
@@ -151,28 +160,28 @@ int main (int argc, const char * argv[]) {
 
     if(port_number < 0 || port_number > 65536)
     {
-        fprintf(stderr,"ERROR: Port must be in interval 0-65536,not %d\n", port_number); //тут поменял на %d
+        fprintf(stderr,"ERROR: Port must be in interval 0-65536,not %d\n", port_number); // Print error message for invalid port number
         exit(EXIT_FAILURE);
     }
 
-    /* 2. ziskani adresy serveru pomoci DNS */
+     /* 2. Get server address using DNS */
 
     if ((server = gethostbyname(server_hostname)) == NULL)
     {
-        fprintf(stderr,"ERROR: no such host as %s\n", server_hostname);
+        fprintf(stderr,"ERROR: no such host as %s\n", server_hostname); // Print error message if server hostname cannot be found
         exit(EXIT_FAILURE);
     }
 
-    /* 3. nalezeni IP adresy serveru a inicializace struktury server_address */
-    bzero((char *) &server_address, sizeof(server_address));
+     /* 3. Find server IP address and initialize server_address struct */
+    bzero((char *) &server_address, sizeof(server_address));// Clear server_address
     server_address.sin_family = AF_INET;
     bcopy((char *)server->h_addr, (char *)&server_address.sin_addr.s_addr, server->h_length);
     server_address.sin_port = htons(port_number);
 
-    /* tiskne informace o vzdalenem soketu */
+   /*Printing information about the remote socket.*/
     printf("INFO: Server socket: %s : %d \n", inet_ntoa(server_address.sin_addr), ntohs(server_address.sin_port));
 
-    /* Vytvoreni soketu */
+    /* Creating a socket. */
     if (!is_upd)
     {
         client_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -181,19 +190,23 @@ int main (int argc, const char * argv[]) {
     {
         client_socket = socket(AF_INET, SOCK_DGRAM, 0);
     }
+    
+    /*Checking if the socket was created successfully.*/
 
     if (client_socket <= 0)
     {
         perror("ERROR: socket");
         exit(EXIT_FAILURE);
     }
-
+    
+    /*Connecting to the server.*/
     if (connect(client_socket, (const struct sockaddr *) &server_address, sizeof(server_address)) != 0)
     {
         perror("ERROR: connect");
         exit(EXIT_FAILURE);
     }
-
+    
+    /*Performing TCP or UDP communication based on the value of is_upd.*/
     if (!is_upd)
     {
         tcp(buf,bytestx,bytesrx);
@@ -203,7 +216,7 @@ int main (int argc, const char * argv[]) {
         upd(buf,bytestx,bytesrx,serverlen,server_address);
     }
 
-    close(client_socket);
-    return 0;
+    close(client_socket); //Closing the socket.
+    return 0; //Returning 0 to indicate success.
 }
 #endif
