@@ -99,6 +99,35 @@ Description: A socket file descriptor for the client
 ### BUFSIZE
 Description: A constant integer representing the maximum size of the buffer.
 
+# Sequence Diagram
+   participant User
+   participant Program
+   participant Server
+   
+   ```mermaid
+   sequenceDiagram
+
+   ```
+   User->>Program: Starts the program with input arguments
+   Program->>Program: Parses the input arguments
+   Program->>Program: Registers the SIGINT signal handler
+   Program->>Program: Creates a socket and sets up the server address
+   User->>Program: Enters a message to be sent to the server
+   Program->>Server: Sends the message
+   Server->>Program: Receives a response
+   Program->>Program: Prints the received response
+   User->>Program: Enters another message to be sent to the server
+   Program->>Server: Sends the message
+   Server->>Program: Receives a response
+   Program->>Program: Prints the received response
+   ... (repeat until user presses Ctrl+C)
+   User->>Program: Presses Ctrl+C
+   Program->>Server: Sends "BYE" message (if using TCP)
+   Program->>Program: Closes the socket
+   Program->>Program: Exits
+
+
+
 # Bibliography
 * [C standard](https://en.cppreference.com/w/c/language)
 * [Simple socket's tutor](https://www.cs.rpi.edu/~moorthy/Courses/os98/Pgms/socket.html)
