@@ -106,29 +106,29 @@ Description: A constant integer representing the maximum size of the buffer.
    
    ```mermaid
    sequenceDiagram
-     User->>Program: Starts the program with input arguments
-     Program->>Main: Parses the input arguments
+     User->>Main: Starts the program with input arguments
      activate Main
      Main->>CTR-C Sig: Registers the SIGINT signal handler
      Main->>client_socket: Creates a socket and sets up the server address
-     activate Socket
-     User->>Program: Enters a message to be sent to the server
-     deactivate Socket
+     activate client_socket
+     client_socket->>Main: activated socket
+     deactivate client_socket
 
      loop send/recv
-         Program->>Server: Sends the message
-         Server->>Program: Receives a response
-         Program->>Main: Prints the received response
-         User->>Program: Enters another message to be sent to the server
-         Program->>Server: Sends the message
-         Server->>Program: Receives a response
-         Program->>Main: Prints the received response
+         User->>Main: Enters a message to be sent to the server
+         Main->>Server: Sends the message
+         Server->>Main: Receives a response
+         Main->>Stdout: Prints the received response
+         User->>Main: Enters another message to be sent to the server
+         Main->>Server: Sends the message
+         Server->>Main: Receives a response
+         Main->>Stdout: Prints the received response
      end
 
-     User->>Program: Presses Ctrl+C
-     Program->>Server: Sends "BYE" message (if using TCP)
-     Program->>Main: Closes the socket
-     Program->>Main: Exits
+     User->>Main: Presses Ctrl+C
+     Main->>Server: Sends "BYE" message (if using TCP)
+     Main->>Stdout: Closes the socket
+     Main->>Stdout: Exits
      deactivate Main
    ```
 
