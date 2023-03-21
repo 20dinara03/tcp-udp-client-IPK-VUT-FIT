@@ -135,6 +135,11 @@ Description: A constant integer representing the maximum size of the buffer.
      deactivate Main
    ```
 
+#Testing
+### TCP tests
+![test for tcp](./tests/tcp_tests.png)
+### UDP tests
+![test for udp](./tests/udp_tests.png)
 
 # Bibliography
 * [C standard](https://en.cppreference.com/w/c/language)
