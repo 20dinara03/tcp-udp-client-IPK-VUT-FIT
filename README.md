@@ -100,9 +100,12 @@ Description: A socket file descriptor for the client
 Description: A constant integer representing the maximum size of the buffer.
 
 # Sequence Diagram
-   participant User
-   participant Program
-   participant Server
+   * participant User
+   * participant Main
+   * participant Server
+   * participant CTR-C
+   * participant client_socket
+   * participant Stdout
    
    ```mermaid
    sequenceDiagram
