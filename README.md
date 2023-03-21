@@ -106,8 +106,6 @@ Description: A constant integer representing the maximum size of the buffer.
    
    ```mermaid
    sequenceDiagram
-
-   ```
    User->>Program: Starts the program with input arguments
    Program->>Program: Parses the input arguments
    Program->>Program: Registers the SIGINT signal handler
@@ -125,7 +123,7 @@ Description: A constant integer representing the maximum size of the buffer.
    Program->>Server: Sends "BYE" message (if using TCP)
    Program->>Program: Closes the socket
    Program->>Program: Exits
-
+   ```
 
 
 # Bibliography
