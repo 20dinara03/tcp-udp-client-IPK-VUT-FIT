@@ -23,11 +23,14 @@ bool is_upd = false; // Boolean variable to keep track of UDP vs TCP mode.
 int client_socket;  // Socket file descriptor for client.
 
 /**
- * 
+ * Function to handle TCP mode.
+ * @param char* buf - the buffer to be used for sending/receiving data
+ * @param int bytestx -  number of bytes to transmit
+ * @param int bytesrx - number of bytes to receive
+ * @return void
 */
 void tcp(char* buf ,int bytestx, int bytesrx)
 {
-    // Function to handle TCP mode.
     bzero(buf, BUFSIZE); // Clear buffer.
     // While the user hasn't entered the "BYE" message, keep reading and sending messages.
     while (strcmp(buf, "BYE\n") != 0)
@@ -49,9 +52,17 @@ void tcp(char* buf ,int bytestx, int bytesrx)
     }
 }
 
+/**
+ * Function to handle UPD mode.
+ * @param char* buf - Pointer to the buffer to be sent.
+ * @param int bytestx -  Number of bytes to be sent.
+ * @param int bytesrx - Number of bytes to be received.
+ * @param socklen_t serverlen - Size of the server address structure.
+ * @param struct sockaddr_in server_address - Struct containing the server address 
+ * @return void
+*/
 void upd(char* buf, int bytestx, int bytesrx, socklen_t serverlen, struct sockaddr_in server_address)
 {
-    // Function to handle UDP mode.
     while(1)
     {
         char buf_exp[BUFSIZE];
